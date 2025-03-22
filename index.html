@@ -7,8 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Add these lines to the <head> section of your index.html file -->
-
+    
     <!-- Web App Manifest -->
     <link rel="manifest" href="manifest.json">
 
@@ -22,7 +21,7 @@
     <meta property="og:title" content="Charaf El Yousfi | Digital Business Card">
     <meta property="og:description" content="Connect with Charaf El Yousfi, AI Engineer specializing in LangChain frameworks and RAG systems">
     <meta property="og:image" content="icons/icon-512x512.png">
-    <meta property="og:url" content="https://your-card-url.vercel.app">
+    <meta property="og:url" content="https://charafbusinesscard.vercel.app">
     <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
@@ -99,6 +98,10 @@
                     <i class="fas fa-file-alt"></i>
                     <span>Download Resume</span>
                 </a>
+                <button class="save-contact-btn" onclick="saveContact()">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Save Contact</span>
+                </button>
             </div>
             
             <div class="card-footer">
@@ -115,7 +118,7 @@
         <button class="lang-btn" data-lang="ar">عربي</button>
     </div>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="qrcode.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

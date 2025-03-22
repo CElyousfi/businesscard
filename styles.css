@@ -363,3 +363,71 @@ h1 {
         transform: translateX(50%);
     }
 }
+/* QR Code styling fix */
+.qr-code {
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .qr-code img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+  /* Save Contact button styling */
+.save-contact-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: #333333;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 12px;
+    transition: var(--transition);
+  }
+  
+  .save-contact-btn:hover {
+    transform: translateY(-3px);
+    background-color: #444444;
+  }
+  
+  .save-contact-btn i {
+    font-size: 18px;
+  }
+  /* Improved section spacing */
+.card-section {
+    padding: 20px 24px;
+  }
+  
+  /* Add more space around the QR code section */
+  .card-footer {
+    padding: 24px;
+    padding-top: 12px;
+    text-align: center;
+  }
+  
+  .card-footer p {
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+  
+  /* Add more space between buttons */
+  .social-links {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
