@@ -7,8 +7,9 @@ const urlsToCache = [
   '/script.js',
   '/profile.jpg',
   '/resume.pdf',
+  '/qrcode.min.js',
+  '/offline.html',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
 ];
 
@@ -36,8 +37,8 @@ self.addEventListener('fetch', event => {
         // Clone the request
         const fetchRequest = event.request.clone();
         
-        return fetch(fetchRequest).then(
-          response => {
+        return fetch(fetchRequest)
+          .then(response => {
             // Check if valid response
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
@@ -52,18 +53,33 @@ self.addEventListener('fetch', event => {
               });
             
             return response;
-          }
-        ).catch(() => {
-          // If both online fetch and cache fail, show fallback content for HTML pages
-          if (event.request.headers.get('accept').includes('text/html')) {
-            return caches.match('/offline.html');
-          }
-        });
+          })
+          .catch(() => {
+            // Check if the request is for an HTML page
+            if (event.request.mode === 'navigate' || 
+               (event.request.method === 'GET' && 
+                event.request.headers.get('accept') && 
+                event.request.headers.get('accept').includes('text/html'))) {
+              console.log('Serving offline page');
+              return caches.match('/offline.html');
+            }
+            
+            // For images, return a placeholder if available
+            if (event.request.url.match(/\.(jpg|jpeg|png|gif|svg)$/)) {
+              return caches.match('/placeholder.png');
+            }
+            
+            // Return nothing for other resources
+            return new Response('', {
+              status: 408,
+              statusText: 'Request timed out.'
+            });
+          });
       })
   );
 });
 
-// Clean up old caches
+// Clean up old caches when a new service worker takes over
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   
@@ -72,10 +88,22 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      console.log('Service Worker activated and cache cleaned');
+      // Take control of all clients immediately
+      return self.clients.claim();
     })
   );
+});
+
+// Handle service worker messages
+self.addEventListener('message', event => {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
