@@ -146,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
 // Add this function to your script.js file
 function saveContact() {
+    // Create vCard data string
     const vCardData = `BEGIN:VCARD
 VERSION:3.0
 N:El Yousfi;Charaf;;;
@@ -157,16 +158,45 @@ URL:https://charafelyousfi.vercel.app/
 NOTE:AI Engineer crafting intelligent solutions at the intersection of human needs and data.
 END:VCARD`;
     
+    // Create a Blob with the vCard data
     const blob = new Blob([vCardData], { type: 'text/vcard' });
+    
+    // Create a URL for the Blob
     const url = URL.createObjectURL(blob);
     
+    // Create a temporary link element
     const a = document.createElement('a');
     a.href = url;
     a.download = 'Charaf_El_Yousfi.vcf';
+    
+    // Append to the document
+    document.body.appendChild(a);
+    
+    // Trigger the download
     a.click();
     
-    URL.revokeObjectURL(url);
+    // Clean up
+    setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }, 100);
+    
+    // Provide visual feedback that the contact is being saved
+    const saveBtn = document.querySelector('.save-contact-btn');
+    if (saveBtn) {
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Contact Saved!</span>';
+        saveBtn.style.backgroundColor = '#4CAF50';
+        
+        setTimeout(() => {
+            saveBtn.innerHTML = originalText;
+            saveBtn.style.backgroundColor = '';
+        }, 3000);
+    }
 }
+
+// Make sure the function is available globally
+window.saveContact = saveContact;
     // Add smooth animations
     document.querySelectorAll('.card-section').forEach((section, index) => {
         section.style.opacity = '0';
