@@ -1,12 +1,14 @@
 // Service worker for offline support
-const CACHE_NAME = 'charaf-card-cache-v1';
+const CACHE_NAME = 'charaf-card-cache-v3'; // Increment version number
 const urlsToCache = [
   '/',
   '/index.html',
   '/styles.css',
   '/script.js',
   '/profile.jpg',
-  '/resume.pdf',
+  '/resume_en.pdf',
+  '/resume_fr.pdf',
+  '/resume_ar.pdf',
   '/qrcode.min.js',
   '/offline.html',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',

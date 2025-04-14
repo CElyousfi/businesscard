@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Set default language
+    let currentLanguage = 'en';
+    
     // Generate QR Code
     const currentUrl = window.location.href;
     new QRCode(document.getElementById("qrcode"), {
@@ -21,12 +24,16 @@ document.addEventListener('DOMContentLoaded', function() {
             phone: "Call",
             schedule: "Schedule",
             aboutTitle: "About",
-            aboutText: "AI Engineer specializing in LangChain frameworks, RAG systems, and document processing applications with a focus on making complex information accessible.",
+            aboutText: "AI Engineer crafting intelligent solutions at the intersection of human needs and data. Turning complex information into accessible magic—with AI agents leading the way. ✨",
             skills: ["AI Technologies", "Machine Learning", "NLP", "Python"],
             connectTitle: "Connect",
             downloadResume: "Download Resume",
             scanInfo: "Scan to save contact or visit my portfolio",
-            copyright: "© 2025 Charaf El Yousfi"
+            copyright: "© 2025 Charaf El Yousfi",
+            resumeFile: "resume_en.pdf",
+            saveContact: "Save Contact",
+            contactSaved: "Contact Saved!",
+            shareContact: "Share Contact"
         },
         fr: {
             title: "Stagiaire en Ingénierie IA @ ANP",
@@ -41,7 +48,11 @@ document.addEventListener('DOMContentLoaded', function() {
             connectTitle: "Connexion",
             downloadResume: "Télécharger CV",
             scanInfo: "Scannez pour enregistrer le contact ou visiter mon portfolio",
-            copyright: "© 2025 Charaf El Yousfi"
+            copyright: "© 2025 Charaf El Yousfi",
+            resumeFile: "resume_fr.pdf",
+            saveContact: "Enregistrer le contact",
+            contactSaved: "Contact enregistré !",
+            shareContact: "Partager le contact"
         },
         ar: {
             title: "متدرب هندسة الذكاء الاصطناعي @ ANP",
@@ -56,12 +67,19 @@ document.addEventListener('DOMContentLoaded', function() {
             connectTitle: "التواصل",
             downloadResume: "تحميل السيرة الذاتية",
             scanInfo: "امسح ضوئيًا لحفظ جهة الاتصال أو زيارة معرض أعمالي",
-            copyright: "© 2025 شرف اليوسفي"
+            copyright: "© 2025 شرف اليوسفي",
+            resumeFile: "resume_ar.pdf",
+            saveContact: "حفظ جهة الاتصال",
+            contactSaved: "تم حفظ جهة الاتصال!",
+            shareContact: "مشاركة جهة الاتصال"
         }
     };
     
     // Function to apply translations
     function applyTranslation(lang) {
+        // Update current language
+        currentLanguage = lang;
+        
         // Set document language
         document.documentElement.lang = lang;
         
@@ -100,8 +118,23 @@ document.addEventListener('DOMContentLoaded', function() {
             skillsContainer.appendChild(skillBadge);
         });
         
-        // Update download resume button
-        document.querySelector('.download-resume span').textContent = t.downloadResume;
+        // Update download resume button and its href attribute
+        const downloadResumeButton = document.querySelector('.download-resume');
+        downloadResumeButton.innerHTML = `<i class="fas fa-file-alt"></i><span>${t.downloadResume}</span>`;
+        downloadResumeButton.setAttribute('href', t.resumeFile);
+        
+        // Update save contact button
+        const saveContactBtn = document.querySelector('.save-contact-btn span');
+        saveContactBtn.textContent = t.saveContact;
+        
+        // Update share contact button if it exists
+        const shareContactBtn = document.querySelector('.share-contact-btn');
+        if (shareContactBtn) {
+            const shareSpan = shareContactBtn.querySelector('span');
+            if (shareSpan) {
+                shareSpan.textContent = t.shareContact;
+            }
+        }
         
         // Update footer text
         const footerTexts = document.querySelectorAll('.card-footer p');
@@ -144,59 +177,130 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.card-footer').insertBefore(nfcButton, document.querySelector('.qr-code'));
     }
     
-// Add this function to your script.js file
-function saveContact() {
-    // Create vCard data string
-    const vCardData = `BEGIN:VCARD
+    // Save Contact function - supports multiple platforms
+    window.saveContact = function() {
+        const lang = currentLanguage;
+        const t = translations[lang];
+        
+        // Create vCard data string
+        const vCardData = `BEGIN:VCARD
 VERSION:3.0
 N:El Yousfi;Charaf;;;
 FN:Charaf El Yousfi
-TITLE:AI Engineering Intern @ ANP
+TITLE:${t.title}
 EMAIL:charafelyousfi3@gmail.com
 TEL:+212621431215
 URL:https://charafelyousfi.vercel.app/
 NOTE:AI Engineer crafting intelligent solutions at the intersection of human needs and data.
 END:VCARD`;
-    
-    // Create a Blob with the vCard data
-    const blob = new Blob([vCardData], { type: 'text/vcard' });
-    
-    // Create a URL for the Blob
-    const url = URL.createObjectURL(blob);
-    
-    // Create a temporary link element
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'Charaf_El_Yousfi.vcf';
-    
-    // Append to the document
-    document.body.appendChild(a);
-    
-    // Trigger the download
-    a.click();
-    
-    // Clean up
-    setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }, 100);
-    
-    // Provide visual feedback that the contact is being saved
-    const saveBtn = document.querySelector('.save-contact-btn');
-    if (saveBtn) {
-        const originalText = saveBtn.innerHTML;
-        saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Contact Saved!</span>';
-        saveBtn.style.backgroundColor = '#4CAF50';
         
+        // Check if Web Share API is available (mainly for Android)
+        if (navigator.share && navigator.canShare) {
+            // Create file to share
+            const vCardFile = new File([vCardData], 'Charaf_El_Yousfi.vcf', {
+                type: 'text/vcard',
+            });
+            
+            const shareData = {
+                title: 'Charaf El Yousfi Contact',
+                text: 'Contact information for Charaf El Yousfi',
+                files: [vCardFile]
+            };
+            
+            // Check if sharing files is supported
+            if (navigator.canShare(shareData)) {
+                navigator.share(shareData)
+                    .then(() => {
+                        // Success - show feedback
+                        showContactSavedFeedback(t.contactSaved);
+                    })
+                    .catch(err => {
+                        console.error('Error sharing: ', err);
+                        // Fall back to download
+                        downloadVCard(vCardData);
+                    });
+                return;
+            }
+        }
+        
+        // Fall back to direct download if sharing isn't available
+        downloadVCard(vCardData);
+    };
+    
+    // Helper function to download vCard
+    function downloadVCard(vCardData) {
+        const lang = currentLanguage;
+        const t = translations[lang];
+        
+        // Create a Blob with the vCard data
+        const blob = new Blob([vCardData], { type: 'text/vcard' });
+        
+        // Create a URL for the Blob
+        const url = URL.createObjectURL(blob);
+        
+        // Create a temporary link element
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Charaf_El_Yousfi.vcf';
+        
+        // Append to the document
+        document.body.appendChild(a);
+        
+        // Trigger the download
+        a.click();
+        
+        // Clean up
         setTimeout(() => {
-            saveBtn.innerHTML = originalText;
-            saveBtn.style.backgroundColor = '';
-        }, 3000);
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+        
+        // Show feedback
+        showContactSavedFeedback(t.contactSaved);
     }
-}
-
-// Make sure the function is available globally
-window.saveContact = saveContact;
+    
+    // Helper function for showing feedback
+    function showContactSavedFeedback(message) {
+        const saveBtn = document.querySelector('.save-contact-btn');
+        if (saveBtn) {
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = `<i class="fas fa-check"></i><span>${message}</span>`;
+            saveBtn.style.backgroundColor = '#4CAF50';
+            
+            setTimeout(() => {
+                const lang = currentLanguage;
+                const t = translations[lang];
+                saveBtn.innerHTML = `<i class="fas fa-user-plus"></i><span>${t.saveContact}</span>`;
+                saveBtn.style.backgroundColor = '';
+            }, 3000);
+        }
+    }
+    
+    // Add share contact button if Web Share API is available
+    if (navigator.share) {
+        const shareContactBtn = document.createElement('button');
+        shareContactBtn.className = 'share-contact-btn';
+        shareContactBtn.innerHTML = `<i class="fas fa-share-alt"></i><span>${translations['en'].shareContact}</span>`;
+        shareContactBtn.addEventListener('click', function() {
+            const lang = currentLanguage;
+            const t = translations[lang];
+            
+            navigator.share({
+                title: 'Charaf El Yousfi',
+                text: `${t.title} | +212621431215 | charafelyousfi3@gmail.com`,
+                url: window.location.href
+            }).then(() => {
+                console.log('Contact shared successfully');
+            }).catch((error) => {
+                console.error('Error sharing', error);
+            });
+        });
+        
+        // Add the button after the save contact button
+        const contactSection = document.querySelector('.save-contact-btn').parentNode;
+        contactSection.appendChild(shareContactBtn);
+    }
+    
     // Add smooth animations
     document.querySelectorAll('.card-section').forEach((section, index) => {
         section.style.opacity = '0';
@@ -222,6 +326,9 @@ window.saveContact = saveContact;
     }
     
     trackVisit();
+    
+    // Apply default language (English)
+    applyTranslation('en');
 });
 
 // Add service worker for offline support
